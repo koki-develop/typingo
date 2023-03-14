@@ -18,6 +18,8 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				g.pressKey(key)
 			}
 		}
+	case tea.WindowSizeMsg:
+		g.windowWidth, g.windowHeight = msg.Width, msg.Height
 	}
 
 	return g, nil
