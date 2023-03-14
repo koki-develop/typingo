@@ -11,8 +11,24 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter:
 			g.currentWordIndex++
 			return g, nil
+		default:
+			g.pressKey(msg.String())
 		}
 	}
 
 	return g, nil
+}
+
+func (g *Game) pressKey(key string) {
+	currentWord := g.words[g.currentWordIndex]
+	currentChar := string([]rune(currentWord)[g.currentCharIndex])
+
+	if currentChar == key {
+		g.currentCharIndex++
+
+		if g.currentCharIndex == len(currentWord) {
+			g.currentCharIndex = 0
+			g.currentWordIndex++
+		}
+	}
 }
