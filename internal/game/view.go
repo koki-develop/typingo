@@ -5,5 +5,5 @@ func (g *Game) View() string {
 		return "clear!!"
 	}
 
-	return g.words[g.currentWordIndex]
+	return g.CurrentWord()
 }

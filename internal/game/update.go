@@ -24,13 +24,10 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (g *Game) pressKey(key string) {
-	currentWord := g.words[g.currentWordIndex]
-	currentChar := string([]rune(currentWord)[g.currentCharIndex])
-
-	if currentChar == key {
+	if key == g.CurrentChar() {
 		g.currentCharIndex++
 
-		if g.currentCharIndex == len(currentWord) {
+		if g.currentCharIndex == len(g.CurrentWord()) {
 			g.currentCharIndex = 0
 			g.currentWordIndex++
 
