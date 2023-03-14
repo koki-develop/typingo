@@ -13,7 +13,7 @@ var rootCmd = &cobra.Command{
 	Short: "Typing game written in Go",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		m := game.New(&game.GameConfig{
-			Words: words.Random(10),
+			Words: words.Random(5),
 		})
 		if err := game.Run(m); err != nil {
 			return err
