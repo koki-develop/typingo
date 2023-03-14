@@ -3,7 +3,11 @@ package game
 import tea "github.com/charmbracelet/bubbletea"
 
 type Game struct {
+	// config
 	words []string
+
+	// state
+	currentIndex int
 }
 
 type GameConfig struct {
@@ -16,7 +20,8 @@ var (
 
 func New(cfg *GameConfig) *Game {
 	return &Game{
-		words: cfg.Words,
+		words:        cfg.Words,
+		currentIndex: 0,
 	}
 }
 
