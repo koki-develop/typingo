@@ -8,6 +8,7 @@ type Game struct {
 
 	// state
 	currentWordIndex int
+	currentCharIndex int
 }
 
 type GameConfig struct {
@@ -22,6 +23,7 @@ func New(cfg *GameConfig) *Game {
 	return &Game{
 		words:            cfg.Words,
 		currentWordIndex: 0,
+		currentCharIndex: 0,
 	}
 }
 
