@@ -3,6 +3,7 @@ module github.com/koki-develop/typingo
 go 1.20
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.20.2
 	github.com/charmbracelet/bubbletea v0.23.2
 	github.com/spf13/cobra v1.6.1
 )
