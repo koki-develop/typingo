@@ -9,7 +9,7 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlC:
 			return g, tea.Quit
 		case tea.KeyEnter:
-			g.currentIndex++
+			g.currentWordIndex++
 			return g, nil
 		}
 	}

@@ -7,7 +7,7 @@ type Game struct {
 	words []string
 
 	// state
-	currentIndex int
+	currentWordIndex int
 }
 
 type GameConfig struct {
@@ -20,8 +20,8 @@ var (
 
 func New(cfg *GameConfig) *Game {
 	return &Game{
-		words:        cfg.Words,
-		currentIndex: 0,
+		words:            cfg.Words,
+		currentWordIndex: 0,
 	}
 }
 
