@@ -1,6 +1,10 @@
 package game
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 type Game struct {
 	// config
@@ -12,6 +16,7 @@ type Game struct {
 	currentCharIndex int
 	windowWidth      int
 	windowHeight     int
+	duration         time.Duration
 }
 
 type GameConfig struct {
@@ -24,10 +29,14 @@ var (
 
 func New(cfg *GameConfig) *Game {
 	return &Game{
-		words:            cfg.Words,
+		// config
+		words: cfg.Words,
+
+		// state
 		showingResult:    false,
 		currentWordIndex: 0,
 		currentCharIndex: 0,
+		duration:         0,
 	}
 }
 

@@ -1,6 +1,12 @@
 package game
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+type TickMsg struct{}
 
 func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -20,6 +26,12 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.WindowSizeMsg:
 		g.windowWidth, g.windowHeight = msg.Width, msg.Height
+	case TickMsg:
+		if g.showingResult {
+			break
+		}
+		g.duration += time.Millisecond
+		return g, g.tick()
 	}
 
 	return g, nil
@@ -38,4 +50,10 @@ func (g *Game) pressKey(key string) {
 			}
 		}
 	}
+}
+
+func (g *Game) tick() tea.Cmd {
+	return tea.Tick(time.Millisecond, func(t time.Time) tea.Msg {
+		return TickMsg{}
+	})
 }

@@ -1,6 +1,8 @@
 package game
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
+)
 
 // styles
 var (
@@ -13,10 +15,24 @@ var (
 )
 
 func (g *Game) View() string {
+	view := ""
+
+	view += g.duration.String()
+
 	if g.showingResult {
-		return "clear!!"
+		view += g.resultView()
+	} else {
+		view += g.wordView()
 	}
 
+	return view
+}
+
+func (g *Game) resultView() string {
+	return "clear!!"
+}
+
+func (g *Game) wordView() string {
 	typed := TypedCharStyle.Render(g.TypedChars())
 	remain := RemainCharStyle.Render(g.RemainChars())
 	word := lipgloss.JoinHorizontal(lipgloss.Center, typed, remain)

@@ -1,7 +1,12 @@
 package game
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	tea "github.com/charmbracelet/bubbletea"
+)
 
-func (*Game) Init() tea.Cmd {
-	return tea.EnterAltScreen
+func (g *Game) Init() tea.Cmd {
+	return tea.Batch(
+		tea.EnterAltScreen,
+		g.tick(),
+	)
 }
