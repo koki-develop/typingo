@@ -40,3 +40,7 @@ func Run(g *Game) error {
 func (g *Game) CurrentWord() string {
 	return g.words[g.currentWordIndex]
 }
+
+func (g *Game) CurrentChar() string {
+	return string([]rune(g.CurrentWord())[g.currentCharIndex])
+}
