@@ -1,5 +1,5 @@
 package game
 
-func (*Game) View() string {
-	return "hello typingo"
+func (g *Game) View() string {
+	return g.words[0]
 }
