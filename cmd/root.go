@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -9,6 +10,10 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "typingo",
 	Short: "Typing game written in Go",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("hello typingo")
+		return nil
+	},
 }
 
 func Execute() {
