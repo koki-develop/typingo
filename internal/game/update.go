@@ -9,7 +9,14 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlC:
 			return g, tea.Quit
 		default:
-			g.pressKey(msg.String())
+			key := msg.String()
+			if g.showingResult {
+				if key == "q" {
+					return g, tea.Quit
+				}
+			} else {
+				g.pressKey(key)
+			}
 		}
 	}
 
@@ -26,6 +33,10 @@ func (g *Game) pressKey(key string) {
 		if g.currentCharIndex == len(currentWord) {
 			g.currentCharIndex = 0
 			g.currentWordIndex++
+
+			if g.currentWordIndex == len(g.words) {
+				g.showingResult = true
+			}
 		}
 	}
 }
