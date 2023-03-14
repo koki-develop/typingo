@@ -10,6 +10,8 @@ type Game struct {
 	showingResult    bool
 	currentWordIndex int
 	currentCharIndex int
+	windowWidth      int
+	windowHeight     int
 }
 
 type GameConfig struct {
