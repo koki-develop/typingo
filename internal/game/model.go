@@ -36,3 +36,7 @@ func Run(g *Game) error {
 	}
 	return nil
 }
+
+func (g *Game) CurrentWord() string {
+	return g.words[g.currentWordIndex]
+}
