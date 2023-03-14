@@ -46,3 +46,11 @@ func (g *Game) CurrentWord() string {
 func (g *Game) CurrentChar() string {
 	return string([]rune(g.CurrentWord())[g.currentCharIndex])
 }
+
+func (g *Game) TypedChars() string {
+	return string([]rune(g.CurrentWord())[:g.currentCharIndex])
+}
+
+func (g *Game) RemainChars() string {
+	return string([]rune(g.CurrentWord())[g.currentCharIndex:])
+}
