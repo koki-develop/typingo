@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/koki-develop/typingo/internal/game"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +11,10 @@ var rootCmd = &cobra.Command{
 	Use:   "typingo",
 	Short: "Typing game written in Go",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("hello typingo")
+		m := game.New()
+		if err := game.Run(m); err != nil {
+			return err
+		}
 		return nil
 	},
 }
