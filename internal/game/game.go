@@ -147,8 +147,12 @@ func (g *Game) Init() tea.Cmd {
  */
 
 var (
-	centerStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center)
+	mainColor = lipgloss.Color("#00ADD8")
 )
+
+func newCenterStyle() lipgloss.Style {
+	return lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center)
+}
 
 func pad(s string) string {
 	maxlen := text.LongestLineLen(s)
@@ -188,33 +192,33 @@ $$$$$$$$/  __    __   ______  $$/  _______    ______    ______
 					 $$$$$$/  $$/                      $$$$$$/
 `)
 
-	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#00ADD8")).Render(logo),
+	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(
+		lipgloss.NewStyle().Bold(true).Foreground(mainColor).Render(logo),
 		"\n",
-		lipgloss.NewStyle().Bold(true).Render("press space to start"),
+		lipgloss.NewStyle().Render("press space to start"),
 	)
 }
 
 func (g *Game) countdownView() string {
-	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render(strconv.Itoa(g.count))
+	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(strconv.Itoa(g.count))
 }
 
 func (g *Game) resultView() string {
 	view := ""
 
-	view += lipgloss.NewStyle().Bold(true).Render("Result") + "\n\n"
+	view += lipgloss.NewStyle().Foreground(mainColor).Bold(true).Render("Result") + "\n\n"
 
-	view += pad(
+	view += lipgloss.NewStyle().Bold(true).Render(pad(
 		fmt.Sprintf("Record: %s", g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String()) + "\n" +
 			fmt.Sprintf("Miss:   %d", g.miss) + "\n" +
 			fmt.Sprintf("WPM:    %d", int(g.wpm())),
-	)
+	))
 	view += "\n\n"
 
 	view += "[r] retry" + "\n"
 	view += "[q] quit " + "\n"
 
-	return centerStyle.Height(g.windowHeight).Width(g.windowWidth).Render(
+	return newCenterStyle().Height(g.windowHeight).Width(g.windowWidth).Render(
 		view,
 	)
 }
@@ -223,7 +227,7 @@ func (g *Game) wordView() string {
 	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
 	remain := lipgloss.NewStyle().Bold(true).Render(g.remainChars())
 
-	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
+	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(
 		lipgloss.JoinHorizontal(lipgloss.Center, typed, remain),
 	)
 }
