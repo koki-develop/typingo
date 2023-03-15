@@ -126,7 +126,7 @@ func (g *Game) wpm() float64 {
 		chars += utf8.RuneCountInString(w)
 	}
 
-	return g.endAt.Sub(g.startAt).Seconds() * 60
+	return float64(chars) / g.endAt.Sub(g.startAt).Seconds() * 60
 }
 
 func (g *Game) showingResult() bool {
