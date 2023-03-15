@@ -11,6 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/jedib0t/go-pretty/v6/text"
+	"github.com/koki-develop/typingo/internal/words"
 )
 
 type keymap struct {
@@ -26,9 +27,10 @@ type keymap struct {
 
 type Game struct {
 	// config
-	words []string
+	numWords int
 
 	// state
+	words            []string
 	start            bool
 	count            int
 	miss             int
@@ -45,7 +47,7 @@ type Game struct {
 }
 
 type GameConfig struct {
-	Words []string
+	NumWords int
 }
 
 var (
@@ -55,7 +57,7 @@ var (
 func New(cfg *GameConfig) *Game {
 	g := &Game{
 		// config
-		words: cfg.Words,
+		numWords: cfg.NumWords,
 
 		// keymap
 		keymap: &keymap{
@@ -89,6 +91,7 @@ func Run(g *Game) error {
 
 func (g *Game) reset() {
 	// state
+	g.words = words.Random(g.numWords)
 	g.start = false
 	g.count = 3
 	g.miss = 0
