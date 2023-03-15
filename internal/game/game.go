@@ -115,12 +115,18 @@ var (
 			Faint(true)
 	RemainCharStyle = lipgloss.NewStyle().
 			Bold(true)
+
+	ResultStyle = lipgloss.NewStyle().
+			Align(lipgloss.Center, lipgloss.Center)
+	ResultHeadingStyle = lipgloss.NewStyle().
+				Bold(true).
+				Padding(1)
+	ResultDurationStyle = lipgloss.NewStyle().MarginBottom(1)
+	ResultHelpStyle     = lipgloss.NewStyle()
 )
 
 func (g *Game) View() string {
 	view := ""
-
-	view += g.duration.String()
 
 	if g.showingResult {
 		view += g.resultView()
@@ -132,7 +138,13 @@ func (g *Game) View() string {
 }
 
 func (g *Game) resultView() string {
-	return "clear!!"
+	heading := ResultHeadingStyle.Render("Result")
+	duration := ResultDurationStyle.Render(g.duration.String())
+	help := ResultHelpStyle.Render("Press q to quit")
+
+	return ResultStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
+		lipgloss.JoinVertical(lipgloss.Center, heading, duration, help),
+	)
 }
 
 func (g *Game) wordView() string {
