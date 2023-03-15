@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"time"
+	"unicode/utf8"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -96,6 +97,15 @@ func (g *Game) remainChars() string {
 	return string([]rune(g.currentWord())[g.currentCharIndex:])
 }
 
+func (g *Game) wpm() float64 {
+	chars := 0
+	for _, w := range g.words {
+		chars += utf8.RuneCountInString(w)
+	}
+
+	return g.endAt.Sub(g.startAt).Seconds() * 60
+}
+
 /*
  * Init
  */
@@ -144,11 +154,12 @@ func (g *Game) View() string {
 func (g *Game) resultView() string {
 	heading := resultHeadingStyle.Render("Result")
 	duration := resultDurationStyle.Render(fmt.Sprintf(
-		"Record: %s\nMiss: %d",
+		"Record: %s\nMiss:   %d\nWPM:    %d",
 		g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String(),
 		g.miss,
+		int(g.wpm()),
 	))
-	help := resultHelpStyle.Render("Press q to quit")
+	help := resultHelpStyle.Render("[q] quit")
 
 	return resultStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
 		lipgloss.JoinVertical(lipgloss.Center, heading, duration, help),
