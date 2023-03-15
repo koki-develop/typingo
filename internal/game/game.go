@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type KeyMap struct {
+type keymap struct {
 	Cancel key.Binding
 	Quit   key.Binding
 }
@@ -33,7 +33,7 @@ type Game struct {
 	endAt            time.Time
 
 	// keymap
-	keymap *KeyMap
+	keymap *keymap
 }
 
 type GameConfig struct {
@@ -56,7 +56,7 @@ func New(cfg *GameConfig) *Game {
 		currentCharIndex: 0,
 
 		// keymap
-		keymap: &KeyMap{
+		keymap: &keymap{
 			Cancel: key.NewBinding(
 				key.WithKeys("ctrl+c", "esc"),
 			),
@@ -80,20 +80,20 @@ func Run(g *Game) error {
 	return nil
 }
 
-func (g *Game) CurrentWord() string {
+func (g *Game) currentWord() string {
 	return g.words[g.currentWordIndex]
 }
 
-func (g *Game) CurrentChar() string {
-	return string([]rune(g.CurrentWord())[g.currentCharIndex])
+func (g *Game) currentChar() string {
+	return string([]rune(g.currentWord())[g.currentCharIndex])
 }
 
-func (g *Game) TypedChars() string {
-	return string([]rune(g.CurrentWord())[:g.currentCharIndex])
+func (g *Game) typedChars() string {
+	return string([]rune(g.currentWord())[:g.currentCharIndex])
 }
 
-func (g *Game) RemainChars() string {
-	return string([]rune(g.CurrentWord())[g.currentCharIndex:])
+func (g *Game) remainChars() string {
+	return string([]rune(g.currentWord())[g.currentCharIndex:])
 }
 
 /*
@@ -113,20 +113,20 @@ func (g *Game) Init() tea.Cmd {
  */
 
 var (
-	WordStyle = lipgloss.NewStyle().
+	wordStyle = lipgloss.NewStyle().
 			Align(lipgloss.Center, lipgloss.Center)
-	TypedCharStyle = lipgloss.NewStyle().
+	typedCharStyle = lipgloss.NewStyle().
 			Faint(true)
-	RemainCharStyle = lipgloss.NewStyle().
+	remainCharStyle = lipgloss.NewStyle().
 			Bold(true)
 
-	ResultStyle = lipgloss.NewStyle().
+	resultStyle = lipgloss.NewStyle().
 			Align(lipgloss.Center, lipgloss.Center)
-	ResultHeadingStyle = lipgloss.NewStyle().
+	resultHeadingStyle = lipgloss.NewStyle().
 				Bold(true).
 				Padding(1)
-	ResultDurationStyle = lipgloss.NewStyle().MarginBottom(1)
-	ResultHelpStyle     = lipgloss.NewStyle()
+	resultDurationStyle = lipgloss.NewStyle().MarginBottom(1)
+	resultHelpStyle     = lipgloss.NewStyle()
 )
 
 func (g *Game) View() string {
@@ -142,25 +142,25 @@ func (g *Game) View() string {
 }
 
 func (g *Game) resultView() string {
-	heading := ResultHeadingStyle.Render("Result")
-	duration := ResultDurationStyle.Render(fmt.Sprintf(
+	heading := resultHeadingStyle.Render("Result")
+	duration := resultDurationStyle.Render(fmt.Sprintf(
 		"Record: %s\nMiss: %d",
 		g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String(),
 		g.miss,
 	))
-	help := ResultHelpStyle.Render("Press q to quit")
+	help := resultHelpStyle.Render("Press q to quit")
 
-	return ResultStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
+	return resultStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
 		lipgloss.JoinVertical(lipgloss.Center, heading, duration, help),
 	)
 }
 
 func (g *Game) wordView() string {
-	typed := TypedCharStyle.Render(g.TypedChars())
-	remain := RemainCharStyle.Render(g.RemainChars())
+	typed := typedCharStyle.Render(g.typedChars())
+	remain := remainCharStyle.Render(g.remainChars())
 	word := lipgloss.JoinHorizontal(lipgloss.Center, typed, remain)
 
-	return WordStyle.Width(g.windowWidth).Height(g.windowHeight).Render(word)
+	return wordStyle.Width(g.windowWidth).Height(g.windowHeight).Render(word)
 }
 
 /*
@@ -186,10 +186,10 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (g *Game) pressKey(msg tea.KeyMsg) {
-	if msg.String() == g.CurrentChar() {
+	if msg.String() == g.currentChar() {
 		g.currentCharIndex++
 
-		if g.currentCharIndex == len(g.CurrentWord()) {
+		if g.currentCharIndex == len(g.currentWord()) {
 			g.currentCharIndex = 0
 			g.currentWordIndex++
 
