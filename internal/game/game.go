@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -23,6 +24,7 @@ type Game struct {
 
 	// state
 	showingResult    bool
+	miss             int
 	currentWordIndex int
 	currentCharIndex int
 	windowWidth      int
@@ -49,6 +51,7 @@ func New(cfg *GameConfig) *Game {
 
 		// state
 		showingResult:    false,
+		miss:             0,
 		currentWordIndex: 0,
 		currentCharIndex: 0,
 
@@ -140,7 +143,11 @@ func (g *Game) View() string {
 
 func (g *Game) resultView() string {
 	heading := ResultHeadingStyle.Render("Result")
-	duration := ResultDurationStyle.Render(g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String())
+	duration := ResultDurationStyle.Render(fmt.Sprintf(
+		"Record: %s\nMiss: %d",
+		g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String(),
+		g.miss,
+	))
 	help := ResultHelpStyle.Render("Press q to quit")
 
 	return ResultStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
@@ -192,5 +199,7 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 				g.keymap.Quit.SetEnabled(true)
 			}
 		}
+	} else {
+		g.miss++
 	}
 }
