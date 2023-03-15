@@ -26,6 +26,7 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if g.showingResult {
 			break
 		}
+		g.duration += time.Millisecond
 		return g, g.tick()
 	}
 
@@ -50,7 +51,6 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 
 func (g *Game) tick() tea.Cmd {
 	return tea.Tick(time.Millisecond, func(t time.Time) tea.Msg {
-		g.duration += time.Millisecond
 		return TickMsg{}
 	})
 }
