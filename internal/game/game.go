@@ -163,8 +163,37 @@ func (g *Game) View() string {
 	}
 }
 
+func pad(s string) string {
+	maxlen := text.LongestLineLen(s)
+	rows := strings.Split(s, "\n")
+	rslt := make([]string, len(rows))
+	for i := 0; i < len(rows); i++ {
+		rslt[i] = text.Pad(rows[i], maxlen, ' ')
+	}
+	return strings.Join(rslt, "\n")
+}
+
 func (g *Game) startView() string {
-	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render("press space to start")
+	logo := pad(`
+		 ________                      __
+		/        |                    /  |
+		$$$$$$$$/  __    __   ______  $$/  _______    ______    ______
+			 $$ |   /  |  /  | /      \ /  |/       \  /      \  /      \
+			 $$ |   $$ |  $$ |/$$$$$$  |$$ |$$$$$$$  |/$$$$$$  |/$$$$$$  |
+			 $$ |   $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |
+			 $$ |   $$ \__$$ |$$ |__$$ |$$ |$$ |  $$ |$$ \__$$ |$$ \__$$ |
+			 $$ |   $$    $$ |$$    $$/ $$ |$$ |  $$ |$$    $$ |$$    $$/
+			 $$/     $$$$$$$ |$$$$$$$/  $$/ $$/   $$/  $$$$$$$ | $$$$$$/
+							/  \__$$ |$$ |                    /  \__$$ |
+							$$    $$/ $$ |                    $$    $$/
+							 $$$$$$/  $$/                      $$$$$$/
+	`)
+
+	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
+		lipgloss.NewStyle().Foreground(lipgloss.Color("#00ADD8")).Render(logo),
+		"\n",
+		lipgloss.NewStyle().Bold(true).Render("press space to start"),
+	)
 }
 
 func (g *Game) countdownView() string {
