@@ -88,12 +88,14 @@ func Run(g *Game) error {
 }
 
 func (g *Game) reset() {
+	// state
 	g.start = false
 	g.count = 3
 	g.miss = 0
 	g.currentWordIndex = 0
 	g.currentCharIndex = 0
 
+	// keymap
 	g.keymap.Start.SetEnabled(true)
 	g.keymap.Retry.SetEnabled(false)
 	g.keymap.Quit.SetEnabled(false)
@@ -224,11 +226,17 @@ func (g *Game) resultView() string {
 }
 
 func (g *Game) wordView() string {
+	view := ""
+
 	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
 	remain := lipgloss.NewStyle().Bold(true).Render(g.remainChars())
+	view += lipgloss.JoinHorizontal(lipgloss.Center, typed, remain)
+	view += "\n"
+
+	view += fmt.Sprintf("(%d/%d)", g.currentWordIndex+1, len(g.words))
 
 	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(
-		lipgloss.JoinHorizontal(lipgloss.Center, typed, remain),
+		view,
 	)
 }
 
