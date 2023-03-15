@@ -117,7 +117,7 @@ func (g *Game) typedChars() string {
 }
 
 func (g *Game) remainChars() string {
-	return string([]rune(g.currentText())[g.currentCharIndex:])
+	return string([]rune(g.currentText())[g.currentCharIndex+1:])
 }
 
 func (g *Game) wpm() float64 {
@@ -232,8 +232,9 @@ func (g *Game) textView() string {
 	view := ""
 
 	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
+	char := lipgloss.NewStyle().Bold(true).Underline(true).Render(g.currentChar())
 	remain := lipgloss.NewStyle().Bold(true).Render(g.remainChars())
-	view += lipgloss.JoinHorizontal(lipgloss.Center, typed, remain)
+	view += lipgloss.JoinHorizontal(lipgloss.Center, typed, char, remain)
 	view += "\n"
 
 	view += fmt.Sprintf("(%d/%d)", g.currentTextIndex+1, len(g.texts))
