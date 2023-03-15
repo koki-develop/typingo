@@ -35,6 +35,7 @@ type Game struct {
 	start            bool
 	count            int
 	mistakes         int
+	mistaking        bool
 	currentTextIndex int
 	currentCharIndex int
 	startAt          time.Time
@@ -98,6 +99,7 @@ func (g *Game) reset() {
 	g.start = false
 	g.count = 3
 	g.mistakes = 0
+	g.mistaking = false
 	g.currentTextIndex = 0
 	g.currentCharIndex = 0
 
@@ -158,7 +160,8 @@ func (g *Game) Init() tea.Cmd {
  */
 
 var (
-	mainColor = lipgloss.Color("#00ADD8")
+	mainColor  = lipgloss.Color("#00ADD8")
+	errorColor = lipgloss.Color("#ff0000")
 )
 
 func newCenterStyle() lipgloss.Style {
@@ -239,7 +242,11 @@ func (g *Game) textView() string {
 	view := ""
 
 	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
-	char := lipgloss.NewStyle().Bold(true).Underline(true).Render(g.currentChar())
+	charStyle := lipgloss.NewStyle().Bold(true).Underline(true)
+	if g.mistaking {
+		charStyle = charStyle.Foreground(errorColor)
+	}
+	char := charStyle.Render(g.currentChar())
 	remain := lipgloss.NewStyle().Bold(true).Render(g.remainChars())
 	view += lipgloss.JoinHorizontal(lipgloss.Center, typed, char, remain)
 	view += "\n"
@@ -290,6 +297,7 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (g *Game) pressKey(msg tea.KeyMsg) {
 	if msg.String() == g.currentChar() {
+		g.mistaking = false
 		g.currentCharIndex++
 
 		if g.currentCharIndex == len(g.currentText()) {
@@ -303,6 +311,7 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 			}
 		}
 	} else {
+		g.mistaking = true
 		g.mistakes++
 		if g.beep {
 			fmt.Print("\a")
