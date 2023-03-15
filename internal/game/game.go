@@ -14,6 +14,7 @@ import (
 )
 
 type keymap struct {
+	Retry  key.Binding
 	Cancel key.Binding
 	Quit   key.Binding
 }
@@ -32,10 +33,11 @@ type Game struct {
 	miss             int
 	currentWordIndex int
 	currentCharIndex int
-	windowWidth      int
-	windowHeight     int
 	startAt          time.Time
 	endAt            time.Time
+
+	windowWidth  int
+	windowHeight int
 
 	// keymap
 	keymap *keymap
@@ -54,15 +56,11 @@ func New(cfg *GameConfig) *Game {
 		// config
 		words: cfg.Words,
 
-		// state
-		count:            3,
-		showingResult:    false,
-		miss:             0,
-		currentWordIndex: 0,
-		currentCharIndex: 0,
-
 		// keymap
 		keymap: &keymap{
+			Retry: key.NewBinding(
+				key.WithKeys("r"),
+			),
 			Cancel: key.NewBinding(
 				key.WithKeys("ctrl+c", "esc"),
 			),
@@ -73,8 +71,7 @@ func New(cfg *GameConfig) *Game {
 		},
 	}
 
-	g.keymap.Quit.SetEnabled(false)
-
+	g.reset()
 	return g
 }
 
@@ -84,6 +81,17 @@ func Run(g *Game) error {
 		return err
 	}
 	return nil
+}
+
+func (g *Game) reset() {
+	g.count = 3
+	g.showingResult = false
+	g.miss = 0
+	g.currentWordIndex = 0
+	g.currentCharIndex = 0
+
+	g.keymap.Retry.SetEnabled(false)
+	g.keymap.Quit.SetEnabled(false)
 }
 
 func (g *Game) currentWord() string {
@@ -199,6 +207,9 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return g, tea.Quit
 		case g.running() && !g.showingResult:
 			g.pressKey(msg)
+		case g.showingResult && key.Matches(msg, g.keymap.Retry):
+			g.reset()
+			return g, g.countdown()
 		}
 	case countdownMsg:
 		g.count--
@@ -225,6 +236,7 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 			if g.currentWordIndex == len(g.words) {
 				g.endAt = time.Now()
 				g.showingResult = true
+				g.keymap.Retry.SetEnabled(true)
 				g.keymap.Quit.SetEnabled(true)
 			}
 		}
