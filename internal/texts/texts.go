@@ -1,4 +1,4 @@
-package words
+package texts
 
 import (
 	"math/rand"
@@ -11,9 +11,9 @@ var fakeFns = []func() string{
 }
 
 func Random(l int) []string {
-	words := make([]string, l)
+	texts := make([]string, l)
 	for i := 0; i < l; i++ {
-		words[i] = fakeFns[rand.Intn(len(fakeFns))]()
+		texts[i] = fakeFns[rand.Intn(len(fakeFns))]()
 	}
-	return words
+	return texts
 }

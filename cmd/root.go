@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	numWords int
+	numTexts int
 )
 
 var rootCmd = &cobra.Command{
@@ -16,7 +16,7 @@ var rootCmd = &cobra.Command{
 	Short: "Typing game written in Go",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		m := game.New(&game.GameConfig{
-			NumWords: numWords,
+			NumTexts: numTexts,
 		})
 		if err := game.Run(m); err != nil {
 			return err
@@ -33,5 +33,5 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().IntVar(&numWords, "num-words", 10, "the number of words")
+	rootCmd.Flags().IntVar(&numTexts, "num-texts", 10, "the number of texts")
 }

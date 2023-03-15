@@ -11,7 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/jedib0t/go-pretty/v6/text"
-	"github.com/koki-develop/typingo/internal/words"
+	"github.com/koki-develop/typingo/internal/texts"
 )
 
 type keymap struct {
@@ -27,14 +27,14 @@ type keymap struct {
 
 type Game struct {
 	// config
-	numWords int
+	numTexts int
 
 	// state
-	words            []string
+	texts            []string
 	start            bool
 	count            int
 	miss             int
-	currentWordIndex int
+	currentTextIndex int
 	currentCharIndex int
 	startAt          time.Time
 	endAt            time.Time
@@ -47,7 +47,7 @@ type Game struct {
 }
 
 type GameConfig struct {
-	NumWords int
+	NumTexts int
 }
 
 var (
@@ -57,7 +57,7 @@ var (
 func New(cfg *GameConfig) *Game {
 	g := &Game{
 		// config
-		numWords: cfg.NumWords,
+		numTexts: cfg.NumTexts,
 
 		// keymap
 		keymap: &keymap{
@@ -91,11 +91,11 @@ func Run(g *Game) error {
 
 func (g *Game) reset() {
 	// state
-	g.words = words.Random(g.numWords)
+	g.texts = texts.Random(g.numTexts)
 	g.start = false
 	g.count = 3
 	g.miss = 0
-	g.currentWordIndex = 0
+	g.currentTextIndex = 0
 	g.currentCharIndex = 0
 
 	// keymap
@@ -104,25 +104,25 @@ func (g *Game) reset() {
 	g.keymap.Quit.SetEnabled(false)
 }
 
-func (g *Game) currentWord() string {
-	return g.words[g.currentWordIndex]
+func (g *Game) currentText() string {
+	return g.texts[g.currentTextIndex]
 }
 
 func (g *Game) currentChar() string {
-	return string([]rune(g.currentWord())[g.currentCharIndex])
+	return string([]rune(g.currentText())[g.currentCharIndex])
 }
 
 func (g *Game) typedChars() string {
-	return string([]rune(g.currentWord())[:g.currentCharIndex])
+	return string([]rune(g.currentText())[:g.currentCharIndex])
 }
 
 func (g *Game) remainChars() string {
-	return string([]rune(g.currentWord())[g.currentCharIndex:])
+	return string([]rune(g.currentText())[g.currentCharIndex:])
 }
 
 func (g *Game) wpm() float64 {
 	chars := 0
-	for _, w := range g.words {
+	for _, w := range g.texts {
 		chars += utf8.RuneCountInString(w)
 	}
 
@@ -130,7 +130,7 @@ func (g *Game) wpm() float64 {
 }
 
 func (g *Game) showingResult() bool {
-	return g.currentWordIndex == len(g.words)
+	return g.currentTextIndex == len(g.texts)
 }
 
 func (g *Game) running() bool {
@@ -174,7 +174,7 @@ func (g *Game) View() string {
 	case !g.start:
 		return g.startView()
 	case g.running():
-		return g.wordView()
+		return g.textView()
 	case g.showingResult():
 		return g.resultView()
 	default:
@@ -228,7 +228,7 @@ func (g *Game) resultView() string {
 	)
 }
 
-func (g *Game) wordView() string {
+func (g *Game) textView() string {
 	view := ""
 
 	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
@@ -236,7 +236,7 @@ func (g *Game) wordView() string {
 	view += lipgloss.JoinHorizontal(lipgloss.Center, typed, remain)
 	view += "\n"
 
-	view += fmt.Sprintf("(%d/%d)", g.currentWordIndex+1, len(g.words))
+	view += fmt.Sprintf("(%d/%d)", g.currentTextIndex+1, len(g.texts))
 
 	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(
 		view,
@@ -284,11 +284,11 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 	if msg.String() == g.currentChar() {
 		g.currentCharIndex++
 
-		if g.currentCharIndex == len(g.currentWord()) {
+		if g.currentCharIndex == len(g.currentText()) {
 			g.currentCharIndex = 0
-			g.currentWordIndex++
+			g.currentTextIndex++
 
-			if g.currentWordIndex == len(g.words) {
+			if g.currentTextIndex == len(g.texts) {
 				g.endAt = time.Now()
 				g.keymap.Retry.SetEnabled(true)
 				g.keymap.Quit.SetEnabled(true)
