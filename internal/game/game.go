@@ -296,6 +296,7 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 		}
 	} else {
 		g.miss++
+		fmt.Print("\a")
 	}
 }
 
