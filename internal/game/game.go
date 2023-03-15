@@ -27,7 +27,8 @@ type Game struct {
 	currentCharIndex int
 	windowWidth      int
 	windowHeight     int
-	duration         time.Duration
+	startAt          time.Time
+	endAt            time.Time
 
 	// keymap
 	keymap *KeyMap
@@ -50,7 +51,6 @@ func New(cfg *GameConfig) *Game {
 		showingResult:    false,
 		currentWordIndex: 0,
 		currentCharIndex: 0,
-		duration:         0,
 
 		// keymap
 		keymap: &KeyMap{
@@ -98,9 +98,10 @@ func (g *Game) RemainChars() string {
  */
 
 func (g *Game) Init() tea.Cmd {
+	g.startAt = time.Now()
+
 	return tea.Batch(
 		tea.EnterAltScreen,
-		g.tick(),
 	)
 }
 
@@ -139,7 +140,7 @@ func (g *Game) View() string {
 
 func (g *Game) resultView() string {
 	heading := ResultHeadingStyle.Render("Result")
-	duration := ResultDurationStyle.Render(g.duration.String())
+	duration := ResultDurationStyle.Render(g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String())
 	help := ResultHelpStyle.Render("Press q to quit")
 
 	return ResultStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
@@ -159,8 +160,6 @@ func (g *Game) wordView() string {
  * Update
  */
 
-type TickMsg struct{}
-
 func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -174,12 +173,6 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.WindowSizeMsg:
 		g.windowWidth, g.windowHeight = msg.Width, msg.Height
-	case TickMsg:
-		if g.showingResult {
-			break
-		}
-		g.duration += time.Millisecond
-		return g, g.tick()
 	}
 
 	return g, nil
@@ -194,15 +187,10 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 			g.currentWordIndex++
 
 			if g.currentWordIndex == len(g.words) {
+				g.endAt = time.Now()
 				g.showingResult = true
 				g.keymap.Quit.SetEnabled(true)
 			}
 		}
 	}
-}
-
-func (g *Game) tick() tea.Cmd {
-	return tea.Tick(time.Millisecond, func(t time.Time) tea.Msg {
-		return TickMsg{}
-	})
 }
