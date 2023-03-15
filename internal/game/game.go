@@ -150,6 +150,16 @@ var (
 	centerStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center)
 )
 
+func pad(s string) string {
+	maxlen := text.LongestLineLen(s)
+	rows := strings.Split(s, "\n")
+	rslt := make([]string, len(rows))
+	for i := 0; i < len(rows); i++ {
+		rslt[i] = text.Pad(rows[i], maxlen, ' ')
+	}
+	return strings.Join(rslt, "\n")
+}
+
 func (g *Game) View() string {
 	switch {
 	case !g.start:
@@ -161,16 +171,6 @@ func (g *Game) View() string {
 	default:
 		return g.countdownView()
 	}
-}
-
-func pad(s string) string {
-	maxlen := text.LongestLineLen(s)
-	rows := strings.Split(s, "\n")
-	rslt := make([]string, len(rows))
-	for i := 0; i < len(rows); i++ {
-		rslt[i] = text.Pad(rows[i], maxlen, ' ')
-	}
-	return strings.Join(rslt, "\n")
 }
 
 func (g *Game) startView() string {
@@ -205,16 +205,12 @@ func (g *Game) resultView() string {
 
 	view += lipgloss.NewStyle().Bold(true).Render("Result") + "\n\n"
 
-	rows := []string{
-		fmt.Sprintf("Record: %s", g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String()),
-		fmt.Sprintf("Miss:   %d", g.miss),
-		fmt.Sprintf("WPM:    %d", int(g.wpm())),
-	}
-	maxlen := text.LongestLineLen(strings.Join(rows, "\n"))
-	for _, row := range rows {
-		view += text.Pad(row, maxlen, ' ') + "\n"
-	}
-	view += "\n"
+	view += pad(
+		fmt.Sprintf("Record: %s", g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String()) + "\n" +
+			fmt.Sprintf("Miss:   %d", g.miss) + "\n" +
+			fmt.Sprintf("WPM:    %d", int(g.wpm())),
+	)
+	view += "\n\n"
 
 	view += "[r] retry" + "\n"
 	view += "[q] quit " + "\n"
