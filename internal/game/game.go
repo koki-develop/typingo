@@ -28,12 +28,13 @@ type keymap struct {
 type Game struct {
 	// config
 	numTexts int
+	beep     bool
 
 	// state
 	texts            []string
 	start            bool
 	count            int
-	miss             int
+	mistakes         int
 	currentTextIndex int
 	currentCharIndex int
 	startAt          time.Time
@@ -48,6 +49,7 @@ type Game struct {
 
 type GameConfig struct {
 	NumTexts int
+	Beep     bool
 }
 
 var (
@@ -58,6 +60,7 @@ func New(cfg *GameConfig) *Game {
 	g := &Game{
 		// config
 		numTexts: cfg.NumTexts,
+		beep:     cfg.Beep,
 
 		// keymap
 		keymap: &keymap{
@@ -94,7 +97,7 @@ func (g *Game) reset() {
 	g.texts = texts.Random(g.numTexts)
 	g.start = false
 	g.count = 3
-	g.miss = 0
+	g.mistakes = 0
 	g.currentTextIndex = 0
 	g.currentCharIndex = 0
 
@@ -120,13 +123,16 @@ func (g *Game) remainChars() string {
 	return string([]rune(g.currentText())[g.currentCharIndex+1:])
 }
 
-func (g *Game) wpm() float64 {
+func (g *Game) chars() int {
 	chars := 0
 	for _, w := range g.texts {
 		chars += utf8.RuneCountInString(w)
 	}
+	return chars
+}
 
-	return float64(chars) / g.endAt.Sub(g.startAt).Seconds() * 60
+func (g *Game) wpm() float64 {
+	return float64(g.chars()) / g.endAt.Sub(g.startAt).Seconds() * 60
 }
 
 func (g *Game) showingResult() bool {
@@ -214,9 +220,10 @@ func (g *Game) resultView() string {
 	view += lipgloss.NewStyle().Foreground(mainColor).Bold(true).Render("Result") + "\n\n"
 
 	view += lipgloss.NewStyle().Bold(true).Render(pad(
-		fmt.Sprintf("Record: %s", g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String()) + "\n" +
-			fmt.Sprintf("Miss:   %d", g.miss) + "\n" +
-			fmt.Sprintf("WPM:    %d", int(g.wpm())),
+		fmt.Sprintf("Record:     %s", g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String()) + "\n" +
+			fmt.Sprintf("Characters: %d", g.chars()) + "\n" +
+			fmt.Sprintf("Mistakes:   %d", g.mistakes) + "\n" +
+			fmt.Sprintf("WPM:        %d", int(g.wpm())),
 	))
 	view += "\n\n"
 
@@ -296,8 +303,10 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 			}
 		}
 	} else {
-		g.miss++
-		fmt.Print("\a")
+		g.mistakes++
+		if g.beep {
+			fmt.Print("\a")
+		}
 	}
 }
 

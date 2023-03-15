@@ -9,6 +9,7 @@ import (
 
 var (
 	numTexts int
+	beep     bool
 )
 
 var rootCmd = &cobra.Command{
@@ -17,6 +18,7 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		m := game.New(&game.GameConfig{
 			NumTexts: numTexts,
+			Beep:     beep,
 		})
 		if err := game.Run(m); err != nil {
 			return err
@@ -33,5 +35,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().IntVar(&numTexts, "num-texts", 10, "the number of texts")
+	rootCmd.Flags().IntVarP(&numTexts, "num-texts", "n", 10, "the number of texts")
+	rootCmd.Flags().BoolVarP(&beep, "beep", "b", true, "whether to beep when mistaken")
 }
