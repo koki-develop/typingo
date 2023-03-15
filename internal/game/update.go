@@ -3,6 +3,7 @@ package game
 import (
 	"time"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -11,18 +12,13 @@ type TickMsg struct{}
 func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC:
+		switch {
+		case key.Matches(msg, g.keymap.Cancel):
 			return g, tea.Quit
-		default:
-			key := msg.String()
-			if g.showingResult {
-				if key == "q" {
-					return g, tea.Quit
-				}
-			} else {
-				g.pressKey(key)
-			}
+		case key.Matches(msg, g.keymap.Quit):
+			return g, tea.Quit
+		case !g.showingResult:
+			g.pressKey(msg)
 		}
 	case tea.WindowSizeMsg:
 		g.windowWidth, g.windowHeight = msg.Width, msg.Height
@@ -36,8 +32,8 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return g, nil
 }
 
-func (g *Game) pressKey(key string) {
-	if key == g.CurrentChar() {
+func (g *Game) pressKey(msg tea.KeyMsg) {
+	if msg.String() == g.CurrentChar() {
 		g.currentCharIndex++
 
 		if g.currentCharIndex == len(g.CurrentWord()) {
@@ -46,6 +42,7 @@ func (g *Game) pressKey(key string) {
 
 			if g.currentWordIndex == len(g.words) {
 				g.showingResult = true
+				g.keymap.Quit.SetEnabled(true)
 			}
 		}
 	}

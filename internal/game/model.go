@@ -3,6 +3,7 @@ package game
 import (
 	"time"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -17,6 +18,14 @@ type Game struct {
 	windowWidth      int
 	windowHeight     int
 	duration         time.Duration
+
+	// keymap
+	keymap *KeyMap
+}
+
+type KeyMap struct {
+	Cancel key.Binding
+	Quit   key.Binding
 }
 
 type GameConfig struct {
@@ -28,7 +37,7 @@ var (
 )
 
 func New(cfg *GameConfig) *Game {
-	return &Game{
+	g := &Game{
 		// config
 		words: cfg.Words,
 
@@ -37,7 +46,22 @@ func New(cfg *GameConfig) *Game {
 		currentWordIndex: 0,
 		currentCharIndex: 0,
 		duration:         0,
+
+		// keymap
+		keymap: &KeyMap{
+			Cancel: key.NewBinding(
+				key.WithKeys("ctrl+c", "esc"),
+			),
+			Quit: key.NewBinding(
+				key.WithKeys("q"),
+				key.WithHelp("q", "quit"),
+			),
+		},
 	}
+
+	g.keymap.Quit.SetEnabled(false)
+
+	return g
 }
 
 func Run(g *Game) error {
