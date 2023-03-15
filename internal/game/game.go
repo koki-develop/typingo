@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -26,6 +27,7 @@ type Game struct {
 	words []string
 
 	// state
+	count            int
 	showingResult    bool
 	miss             int
 	currentWordIndex int
@@ -53,6 +55,7 @@ func New(cfg *GameConfig) *Game {
 		words: cfg.Words,
 
 		// state
+		count:            3,
 		showingResult:    false,
 		miss:             0,
 		currentWordIndex: 0,
@@ -108,15 +111,18 @@ func (g *Game) wpm() float64 {
 	return g.endAt.Sub(g.startAt).Seconds() * 60
 }
 
+func (g *Game) running() bool {
+	return g.count == 0
+}
+
 /*
  * Init
  */
 
 func (g *Game) Init() tea.Cmd {
-	g.startAt = time.Now()
-
 	return tea.Batch(
 		tea.EnterAltScreen,
+		g.countdown(),
 	)
 }
 
@@ -129,11 +135,19 @@ var (
 )
 
 func (g *Game) View() string {
+	if !g.running() {
+		return g.countdownView()
+	}
+
 	if g.showingResult {
 		return g.resultView()
 	} else {
 		return g.wordView()
 	}
+}
+
+func (g *Game) countdownView() string {
+	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render(strconv.Itoa(g.count))
 }
 
 func (g *Game) resultView() string {
@@ -173,6 +187,8 @@ func (g *Game) wordView() string {
  * Update
  */
 
+type countdownMsg struct{}
+
 func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -181,8 +197,15 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return g, tea.Quit
 		case key.Matches(msg, g.keymap.Quit):
 			return g, tea.Quit
-		case !g.showingResult:
+		case g.running() && !g.showingResult:
 			g.pressKey(msg)
+		}
+	case countdownMsg:
+		g.count--
+		if g.running() {
+			g.startAt = time.Now()
+		} else {
+			return g, g.countdown()
 		}
 	case tea.WindowSizeMsg:
 		g.windowWidth, g.windowHeight = msg.Width, msg.Height
@@ -208,4 +231,10 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 	} else {
 		g.miss++
 	}
+}
+
+func (g *Game) countdown() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return countdownMsg{}
+	})
 }
