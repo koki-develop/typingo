@@ -202,7 +202,7 @@ $$$$$$$$/  __    __   ______  $$/  _______    ______    ______
 }
 
 func (g *Game) countdownView() string {
-	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(strconv.Itoa(g.count))
+	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Bold(true).Render(strconv.Itoa(g.count))
 }
 
 func (g *Game) resultView() string {
