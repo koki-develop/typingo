@@ -2,12 +2,14 @@ package game
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 type keymap struct {
@@ -123,55 +125,48 @@ func (g *Game) Init() tea.Cmd {
  */
 
 var (
-	wordStyle = lipgloss.NewStyle().
-			Align(lipgloss.Center, lipgloss.Center)
-	typedCharStyle = lipgloss.NewStyle().
-			Faint(true)
-	remainCharStyle = lipgloss.NewStyle().
-			Bold(true)
-
-	resultStyle = lipgloss.NewStyle().
-			Align(lipgloss.Center, lipgloss.Center)
-	resultHeadingStyle = lipgloss.NewStyle().
-				Bold(true).
-				Padding(1)
-	resultDurationStyle = lipgloss.NewStyle().MarginBottom(1)
-	resultHelpStyle     = lipgloss.NewStyle()
+	centerStyle = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center)
 )
 
 func (g *Game) View() string {
-	view := ""
-
 	if g.showingResult {
-		view += g.resultView()
+		return g.resultView()
 	} else {
-		view += g.wordView()
+		return g.wordView()
 	}
-
-	return view
 }
 
 func (g *Game) resultView() string {
-	heading := resultHeadingStyle.Render("Result")
-	duration := resultDurationStyle.Render(fmt.Sprintf(
-		"Record: %s\nMiss:   %d\nWPM:    %d",
-		g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String(),
-		g.miss,
-		int(g.wpm()),
-	))
-	help := resultHelpStyle.Render("[q] quit")
+	view := ""
 
-	return resultStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
-		lipgloss.JoinVertical(lipgloss.Center, heading, duration, help),
+	view += lipgloss.NewStyle().Bold(true).Render("Result") + "\n\n"
+
+	rows := []string{
+		fmt.Sprintf("Record: %s", g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String()),
+		fmt.Sprintf("Miss:   %d", g.miss),
+		fmt.Sprintf("WPM:    %d", int(g.wpm())),
+	}
+	maxlen := text.LongestLineLen(strings.Join(rows, "\n"))
+	for _, row := range rows {
+		view += text.Pad(row, maxlen, ' ') + "\n"
+	}
+	view += "\n"
+
+	view += "[r] retry" + "\n"
+	view += "[q] quit " + "\n"
+
+	return centerStyle.Height(g.windowHeight).Width(g.windowWidth).Render(
+		view,
 	)
 }
 
 func (g *Game) wordView() string {
-	typed := typedCharStyle.Render(g.typedChars())
-	remain := remainCharStyle.Render(g.remainChars())
-	word := lipgloss.JoinHorizontal(lipgloss.Center, typed, remain)
+	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
+	remain := lipgloss.NewStyle().Bold(true).Render(g.remainChars())
 
-	return wordStyle.Width(g.windowWidth).Height(g.windowHeight).Render(word)
+	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render(
+		lipgloss.JoinHorizontal(lipgloss.Center, typed, remain),
+	)
 }
 
 /*
