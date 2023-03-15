@@ -209,7 +209,9 @@ $$$$$$$$/  __    __   ______  $$/  _______    ______    ______
 	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(
 		lipgloss.NewStyle().Bold(true).Foreground(mainColor).Render(logo),
 		"\n",
-		lipgloss.NewStyle().Render("press space to start"),
+		lipgloss.NewStyle().Bold(true).Blink(true).Render(
+			"press space to start",
+		),
 	)
 }
 
