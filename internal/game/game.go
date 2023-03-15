@@ -14,6 +14,7 @@ import (
 )
 
 type keymap struct {
+	Start  key.Binding
 	Retry  key.Binding
 	Cancel key.Binding
 	Quit   key.Binding
@@ -28,6 +29,7 @@ type Game struct {
 	words []string
 
 	// state
+	start            bool
 	count            int
 	miss             int
 	currentWordIndex int
@@ -57,6 +59,9 @@ func New(cfg *GameConfig) *Game {
 
 		// keymap
 		keymap: &keymap{
+			Start: key.NewBinding(
+				key.WithKeys(" "),
+			),
 			Retry: key.NewBinding(
 				key.WithKeys("r"),
 			),
@@ -83,11 +88,13 @@ func Run(g *Game) error {
 }
 
 func (g *Game) reset() {
+	g.start = false
 	g.count = 3
 	g.miss = 0
 	g.currentWordIndex = 0
 	g.currentCharIndex = 0
 
+	g.keymap.Start.SetEnabled(true)
 	g.keymap.Retry.SetEnabled(false)
 	g.keymap.Quit.SetEnabled(false)
 }
@@ -132,7 +139,6 @@ func (g *Game) running() bool {
 func (g *Game) Init() tea.Cmd {
 	return tea.Batch(
 		tea.EnterAltScreen,
-		g.countdown(),
 	)
 }
 
@@ -146,6 +152,8 @@ var (
 
 func (g *Game) View() string {
 	switch {
+	case !g.start:
+		return g.startView()
 	case g.running():
 		return g.wordView()
 	case g.showingResult():
@@ -153,6 +161,10 @@ func (g *Game) View() string {
 	default:
 		return g.countdownView()
 	}
+}
+
+func (g *Game) startView() string {
+	return centerStyle.Width(g.windowWidth).Height(g.windowHeight).Render("press space to start")
 }
 
 func (g *Game) countdownView() string {
@@ -206,11 +218,14 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return g, tea.Quit
 		case key.Matches(msg, g.keymap.Quit):
 			return g, tea.Quit
+		case key.Matches(msg, g.keymap.Start):
+			g.start = true
+			g.keymap.Start.SetEnabled(false)
+			return g, g.countdown()
 		case g.running():
 			g.pressKey(msg)
 		case g.showingResult() && key.Matches(msg, g.keymap.Retry):
 			g.reset()
-			return g, g.countdown()
 		}
 	case countdownMsg:
 		g.count--
