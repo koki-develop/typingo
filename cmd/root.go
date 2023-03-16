@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"os"
 
 	"github.com/koki-develop/typingo/internal/game"
@@ -16,6 +17,10 @@ var rootCmd = &cobra.Command{
 	Use:   "typingo",
 	Short: "Typing game written in Go",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if numTexts < 1 {
+			return errors.New(`invalid argument %d for "-n, --num-texts" flag: must be at least 1`)
+		}
+
 		m := game.New(&game.GameConfig{
 			NumTexts: numTexts,
 			Beep:     beep,
