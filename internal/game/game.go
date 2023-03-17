@@ -145,6 +145,14 @@ func (g *Game) running() bool {
 	return g.count == 0 && !g.showingResult()
 }
 
+func (g *Game) currentRecord() time.Duration {
+	return time.Since(g.startAt).Truncate(time.Millisecond)
+}
+
+func (g *Game) record() time.Duration {
+	return g.endAt.Sub(g.startAt).Truncate(time.Millisecond)
+}
+
 /*
  * Init
  */
@@ -225,7 +233,7 @@ func (g *Game) resultView() string {
 	view += lipgloss.NewStyle().Foreground(mainColor).Bold(true).Render("Result") + "\n\n"
 
 	view += lipgloss.NewStyle().Bold(true).Render(pad(
-		fmt.Sprintf("Record:     %s", g.endAt.Sub(g.startAt).Truncate(time.Millisecond).String()) + "\n" +
+		fmt.Sprintf("Record:     %s", g.record().String()) + "\n" +
 			fmt.Sprintf("Characters: %d", g.chars()) + "\n" +
 			fmt.Sprintf("Mistakes:   %d", g.mistakes) + "\n" +
 			fmt.Sprintf("WPM:        %d", int(g.wpm())),
@@ -243,6 +251,9 @@ func (g *Game) resultView() string {
 func (g *Game) textView() string {
 	view := ""
 
+	view += g.currentRecord().String()
+
+	view += "\n\n"
 	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
 	charStyle := lipgloss.NewStyle().Bold(true).Underline(true)
 	if g.mistaking {
@@ -251,7 +262,7 @@ func (g *Game) textView() string {
 	char := charStyle.Render(g.currentChar())
 	remain := lipgloss.NewStyle().Bold(true).Render(g.remainChars())
 	view += lipgloss.JoinHorizontal(lipgloss.Center, typed, char, remain)
-	view += "\n"
+	view += "\n\n"
 
 	view += fmt.Sprintf("(%d/%d)", g.currentTextIndex+1, len(g.texts))
 
@@ -265,6 +276,7 @@ func (g *Game) textView() string {
  */
 
 type countdownMsg struct{}
+type tickMsg struct{}
 
 func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -277,7 +289,7 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, g.keymap.Start):
 			g.start = true
 			g.keymap.Start.SetEnabled(false)
-			return g, g.countdown()
+			return g, tea.Batch(g.countdown(), g.tick())
 		case g.running():
 			g.pressKey(msg)
 		case g.showingResult() && key.Matches(msg, g.keymap.Retry):
@@ -290,6 +302,8 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			return g, g.countdown()
 		}
+	case tickMsg:
+		return g, g.tick()
 	case tea.WindowSizeMsg:
 		g.windowWidth, g.windowHeight = msg.Width, msg.Height
 	}
@@ -324,5 +338,11 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 func (g *Game) countdown() tea.Cmd {
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
 		return countdownMsg{}
+	})
+}
+
+func (g *Game) tick() tea.Cmd {
+	return tea.Tick(time.Millisecond, func(_ time.Time) tea.Msg {
+		return tickMsg{}
 	})
 }
