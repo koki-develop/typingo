@@ -19,6 +19,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "typingo",
 	Short: "Typing game written in Go",
+	Args:  cobra.MaximumNArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if numTexts < 1 {
 			return errors.New(`invalid argument %d for "-n, --num-texts" flag: must be at least 1`)
