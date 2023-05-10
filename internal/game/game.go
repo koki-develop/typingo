@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -86,7 +87,7 @@ func New(cfg *Config) *Game {
 }
 
 func Run(g *Game) error {
-	p := tea.NewProgram(g)
+	p := tea.NewProgram(g, tea.WithOutput(os.Stderr))
 	if _, err := p.Run(); err != nil {
 		return err
 	}
