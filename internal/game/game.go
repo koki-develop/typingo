@@ -331,7 +331,7 @@ func (g *Game) pressKey(msg tea.KeyMsg) {
 		g.mistaking = true
 		g.mistakes++
 		if g.beep {
-			fmt.Print("\a")
+			fmt.Fprint(os.Stderr, "\a")
 		}
 	}
 }
