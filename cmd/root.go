@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"runtime/debug"
 
@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if numTexts < 1 {
-			return errors.New(`invalid argument %d for "-n, --num-texts" flag: must be at least 1`)
+			return fmt.Errorf(`invalid argument %d for "-n, --num-texts" flag: must be at least 1`, numTexts)
 		}
 
 		m := game.New(&game.GameConfig{
