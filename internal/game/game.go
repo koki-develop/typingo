@@ -48,7 +48,7 @@ type Game struct {
 	keymap *keymap
 }
 
-type GameConfig struct {
+type Config struct {
 	NumTexts int
 	Beep     bool
 }
@@ -57,7 +57,7 @@ var (
 	_ tea.Model = (*Game)(nil)
 )
 
-func New(cfg *GameConfig) *Game {
+func New(cfg *Config) *Game {
 	g := &Game{
 		// config
 		numTexts: cfg.NumTexts,

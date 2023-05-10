@@ -25,7 +25,7 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf(`invalid argument %d for "-n, --num-texts" flag: must be at least 1`, flagNumTexts)
 		}
 
-		m := game.New(&game.GameConfig{
+		m := game.New(&game.Config{
 			NumTexts: flagNumTexts,
 			Beep:     flagBeep,
 		})
