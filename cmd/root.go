@@ -12,8 +12,8 @@ import (
 var (
 	version string
 
-	numTexts int
-	beep     bool
+	flagNumTexts int
+	flagBeep     bool
 )
 
 var rootCmd = &cobra.Command{
@@ -21,13 +21,13 @@ var rootCmd = &cobra.Command{
 	Short: "Typing game written in Go",
 	Args:  cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if numTexts < 1 {
-			return fmt.Errorf(`invalid argument %d for "-n, --num-texts" flag: must be at least 1`, numTexts)
+		if flagNumTexts < 1 {
+			return fmt.Errorf(`invalid argument %d for "-n, --num-texts" flag: must be at least 1`, flagNumTexts)
 		}
 
 		m := game.New(&game.GameConfig{
-			NumTexts: numTexts,
-			Beep:     beep,
+			NumTexts: flagNumTexts,
+			Beep:     flagBeep,
 		})
 		if err := game.Run(m); err != nil {
 			return err
@@ -52,6 +52,6 @@ func init() {
 
 	rootCmd.Version = version
 
-	rootCmd.Flags().IntVarP(&numTexts, "num-texts", "n", 10, "the number of texts")
-	rootCmd.Flags().BoolVarP(&beep, "beep", "b", true, "whether to beep when mistaken")
+	rootCmd.Flags().IntVarP(&flagNumTexts, "num-texts", "n", 10, "the number of texts")
+	rootCmd.Flags().BoolVarP(&flagBeep, "beep", "b", true, "whether to beep when mistaken")
 }
