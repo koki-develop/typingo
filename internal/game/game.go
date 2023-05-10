@@ -250,11 +250,11 @@ func (g *Game) resultView() string {
 }
 
 func (g *Game) textView() string {
-	view := ""
+	var v strings.Builder
 
-	view += g.currentRecord().String()
+	v.WriteString(g.currentRecord().String())
+	v.WriteString("\n\n")
 
-	view += "\n\n"
 	typed := lipgloss.NewStyle().Faint(true).Render(g.typedChars())
 	charStyle := lipgloss.NewStyle().Bold(true).Underline(true)
 	if g.mistaking {
@@ -262,13 +262,13 @@ func (g *Game) textView() string {
 	}
 	char := charStyle.Render(g.currentChar())
 	remain := lipgloss.NewStyle().Bold(true).Render(g.remainChars())
-	view += lipgloss.JoinHorizontal(lipgloss.Center, typed, char, remain)
-	view += "\n\n"
+	v.WriteString(lipgloss.JoinHorizontal(lipgloss.Center, typed, char, remain))
+	v.WriteString("\n\n")
 
-	view += fmt.Sprintf("(%d/%d)", g.currentTextIndex+1, len(g.texts))
+	v.WriteString(fmt.Sprintf("(%d/%d)", g.currentTextIndex+1, len(g.texts)))
 
 	return newCenterStyle().Width(g.windowWidth).Height(g.windowHeight).Render(
-		view,
+		v.String(),
 	)
 }
 
