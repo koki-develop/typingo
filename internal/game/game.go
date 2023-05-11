@@ -313,7 +313,7 @@ func (g *Game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (g *Game) pressKey(msg tea.KeyMsg) {
-	if msg.String() == g.currentChar() {
+	if string(msg.Runes) == g.currentChar() {
 		g.mistaking = false
 		g.currentCharIndex++
 
